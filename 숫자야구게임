@@ -1,0 +1,179 @@
+package numbaseball;
+import java.awt.*;
+import javax.swing.*;
+import java.awt.event.*;
+
+public class Main extends JFrame {
+	JButton numbtn[] = new JButton[10];
+	JButton start = new JButton("start");
+	JPanel mp[] = new JPanel[3];
+	//JLabel count = new JLabel();
+	JLabel input[] = new JLabel[4];
+	int answer[] = new int[3];
+	int myans[]= {0,0,0};
+	int idx=0;
+	int cnt=0;
+	JLabel GameOver = new JLabel();
+	JLabel result[] = new JLabel[8];
+	Main(){
+		setTitle("숫자 야구 게임 할래?");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		Container contentPane = getContentPane();
+		contentPane.setLayout(new BorderLayout());
+		// 패널 생성
+		for(int i=0;i<3;i++) {
+			mp[i]=new JPanel();
+		}
+		mp[0].setPreferredSize(new Dimension(860,200));
+		mp[1].setPreferredSize(new Dimension(860,300));
+		mp[2].setPreferredSize(new Dimension(860,400));
+		// 최상위 컨텐트팬에 패널 부착
+		contentPane.add(mp[0],BorderLayout.NORTH);
+		contentPane.add(mp[1],BorderLayout.CENTER);
+		contentPane.add(mp[2],BorderLayout.SOUTH);
+		// 숫자 버튼 만들기
+		mp[0].setLayout(null);
+		for(int i=0;i<10;i++) {
+			numbtn[i]= new JButton(Integer.toString(i));
+			numbtn[i].setBounds(30+80*i, 70, 60, 60);
+			numbtn[i].setBackground(new Color(153,204,255));
+			numbtn[i].setFont(new Font("고딕",Font.ITALIC,25));
+			numbtn[i].addActionListener(new MybtnListener());
+			mp[0].add(numbtn[i]);
+		}
+		// 2번째 패널 (입력)
+		mp[1].setLayout(null);
+		input[0]=new JLabel("입력 값 : "); input[0].setBounds(30, 100, 300, 100); 
+		for(int i=1;i<4;i++) {
+			input[i]= new JLabel("0");
+			input[i].setBounds(390+155*(i-1), 100, 130, 100);		
+		}
+		
+		for(int i=0;i<4;i++) {
+			input[i].setBackground(Color.white); input[i].setOpaque(true);
+			input[i].setFont(new Font("고딕",Font.ITALIC,30));
+			mp[1].add(input[i]);
+			input[i].setHorizontalAlignment(JLabel.CENTER); 
+		}
+		// start 버튼
+		start.setBounds(30, 0, 130, 60); 
+		start.addActionListener(new MyStartListener());
+		mp[1].add(start);
+		start.setFont(new Font("고딕",Font.ITALIC,30));
+		start.setHorizontalAlignment(JLabel.CENTER); 
+		start.setBackground(new Color(255,255,051));
+		
+		// 3번째 패널 (결과)
+		mp[2].setLayout(new GridLayout(8,1,10,0));
+		setSize(860,900);
+		setVisible(true);
+		
+		
+
+	}
+	
+	String Check() {
+		int ball=0, strike =0;
+		for(int i=0;i<3;i++) {
+			for(int j=0;j<3;j++) {
+				if(myans[i]==answer[j]) {
+					if(i==j) strike++;
+					else ball++;
+				}
+			}
+		}
+		String Result ;
+		if(strike==3) {
+			Result = "정답입니다!";
+		}
+		else if(ball==0&&strike==0) {
+			Result=cnt+1+"번째 "+"       "+myans[0]+"       "+myans[1]+"       "+myans[2]+"       "+"OUT!";
+		}
+		else {
+			Result=cnt+1+"번째 "+"       "+myans[0]+"       "+myans[1]+"       "+myans[2]+"       "+"Ball : "+ ball + "        Strike : "+strike;
+		}
+		
+		System.out.println(Result);
+		return Result;
+	}
+	class MyStartListener implements ActionListener{
+		public void actionPerformed(ActionEvent e) {
+			for(int i=0;i<3;i++) {
+				while(true) {
+					answer[i]= (int)(Math.random()*10);
+					int cnt=0;
+					for(int j=0;j<i;j++) {
+						if(j==i)continue;
+						if(answer[j]==answer[i]) {
+							cnt++;
+						}
+					}
+					if(cnt==0)break;
+				}
+				System.out.println(answer[i]);//
+			}
+		}
+	}
+	void Success() {
+		String finishstr = "성공입니다. "+ cnt+"번만에 맞추셨습니다.";
+		GameOver.setText(finishstr);
+		mp[1].add(GameOver);
+		GameOver.setBounds(170, 0, 660, 60);
+		GameOver.setFont(new Font("고딕",Font.PLAIN,30));
+		GameOver.setHorizontalAlignment(JLabel.CENTER); 
+		GameOver.setBackground(new Color(204,255,051));
+		GameOver.setOpaque(true);
+	}
+	void Fail() {
+		String finishstr = "실패입니다. 정답은 "+answer[0]+answer[1]+answer[2];
+		
+		GameOver.setText(finishstr);
+		mp[1].add(GameOver);
+		GameOver.setBounds(170, 0, 660, 60);
+		GameOver.setFont(new Font("고딕",Font.PLAIN,30));
+		GameOver.setHorizontalAlignment(JLabel.CENTER); 
+		GameOver.setBackground(new Color(255,051,051));
+		GameOver.setOpaque(true);
+	}
+	void play() {
+		String checkresult;
+		if(idx==3) {
+			for(int i=1;i<4;i++) {
+				input[i].setBackground(Color.WHITE);
+			}
+			System.out.println(idx);
+			result[cnt]= new JLabel();
+			checkresult=Check();
+			result[cnt].setText(checkresult);
+			result[cnt].setFont(new Font("고딕",Font.ITALIC,20));
+			mp[2].add(result[cnt]);
+			cnt++;
+			idx=0;
+			if(checkresult.equals("정답입니다!")) {
+				Success();
+			}
+			else if(cnt==8) {
+				Fail();
+			}
+		}
+		
+		
+	}
+	class MybtnListener implements ActionListener{
+		public void actionPerformed(ActionEvent e) {
+			JButton b = (JButton)e.getSource();
+			int n=Integer.parseInt(b.getText());
+			myans[idx]=n;
+			input[idx+1].setText(Integer.toString(n));
+			input[idx+1].setBackground(new Color(204,204,255));
+			idx++;
+			play();
+		}
+	}
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		new Main();
+	}
+
+}
+// 같은 숫자가 연속으로 입력시 출력이 가끔 안나올때가 있음.
